@@ -24,9 +24,11 @@ class HuggingfaceDataset(Dataset):
         if self.dataset is None:
             ds = []
             for name in self.dataset_paths:
-                d = load_dataset(name, split=self.split, use_auth_token=self.use_auth_token)
+                d = load_dataset(
+                    name, split=self.split, use_auth_token=self.use_auth_token
+                )
                 ds.append(d)
-    
+
             ds = interleave_datasets(ds, probabilities=normalize_weights(self.weights))
             self.dataset = ds
 
@@ -40,4 +42,3 @@ class HuggingfaceDataset(Dataset):
 
         item = dataset[index]
         return item
-

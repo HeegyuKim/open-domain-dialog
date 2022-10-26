@@ -24,6 +24,7 @@ def levenshtein(s1, s2, normalize=False):
     else:
         return previous_row[-1]
 
+
 def levenshtein_batch(s1, s2):
     lev_dists = [levenshtein(a, b, normalize=True) for a, b in zip(s1, s2)]
     lev_dist_mean = sum(lev_dists) / len(lev_dists)

@@ -62,7 +62,7 @@ class BaseTask(pl.LightningModule):
             self.config.dataset.train.get("weights"),
             self.config.dataset.train.get("split", "train"),
             use_auth_token=self.config.dataset.train.get("use_auth_token", False),
-            )
+        )
 
     def get_train_collator(self) -> Callable:
         return None
@@ -74,7 +74,7 @@ class BaseTask(pl.LightningModule):
                 weights=self.config.dataset.validation.get("weights"),
                 split=self.config.dataset.validation.get("split", "test"),
                 use_auth_token=self.config.dataset.train.get("use_auth_token", False),
-                )
+            )
         else:
             return None
 
@@ -135,7 +135,6 @@ class BaseTask(pl.LightningModule):
         else:
             return None
 
-
     @classmethod
     def main(cls, config_name: str):
         initialize("../../config/")
@@ -153,7 +152,9 @@ class BaseTask(pl.LightningModule):
         )
         trainer = pl.Trainer(
             logger=get_logger(config),
-            accelerator=config.trainer.get("accelerator", "gpu" if torch.cuda.is_available() else 'cpu'),
+            accelerator=config.trainer.get(
+                "accelerator", "gpu" if torch.cuda.is_available() else "cpu"
+            ),
             devices=config.trainer.get("devices", 1),
             max_epochs=config.trainer.get("train_epochs", None),
             max_steps=config.trainer.get("train_steps", -1),

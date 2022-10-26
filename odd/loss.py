@@ -11,12 +11,16 @@ from typing import Optional
 
 
 class FocalLoss(nn.Module):
-    def __init__(self, gamma=0, alpha=None, size_average=True, ignore_index: Optional[int] = -100):
+    def __init__(
+        self, gamma=0, alpha=None, size_average=True, ignore_index: Optional[int] = -100
+    ):
         super(FocalLoss, self).__init__()
         self.gamma = gamma
         self.alpha = alpha
-        if isinstance(alpha,(float,int)): self.alpha = torch.Tensor([alpha,1-alpha])
-        if isinstance(alpha,list): self.alpha = torch.Tensor(alpha)
+        if isinstance(alpha, (float, int)):
+            self.alpha = torch.Tensor([alpha, 1 - alpha])
+        if isinstance(alpha, list):
+            self.alpha = torch.Tensor(alpha)
         self.size_average = size_average
         self.ignore_index = ignore_index
 
@@ -35,21 +39,20 @@ class FocalLoss(nn.Module):
         logpt = logpt.view(-1)
         pt = Variable(logpt.data.exp())
 
-
         if self.alpha is not None:
-            if self.alpha.type()!=input.data.type():
+            if self.alpha.type() != input.data.type():
                 self.alpha = self.alpha.type_as(input.data)
-            at = self.alpha.gather(0,target.data.view(-1))
+            at = self.alpha.gather(0, target.data.view(-1))
             logpt = logpt * Variable(at)
 
-        loss = -1 * (1-pt)**self.gamma * logpt
+        loss = -1 * (1 - pt) ** self.gamma * logpt
 
         if self.ignore_index is not None:
             return (loss * mask.float()).sum() / mask.sum()
-        else: 
+        else:
             return loss.mean()
 
-        
+
 class CrossEntropyLoss(nn.Module):
     def __init__(self, ignore_index: Optional[int] = -100):
         super().__init__()
@@ -57,11 +60,13 @@ class CrossEntropyLoss(nn.Module):
 
     def forward(self, logits, targets):
         """
-            logits: [bs, seq, vocab]
-            targets: [bs, seq]
+        logits: [bs, seq, vocab]
+        targets: [bs, seq]
         """
         if logits.dim() > 2:
             logits = logits.view(-1, logits.shape[-1])
             targets = targets.view(-1)
-        
-        return torch.nn.functional.cross_entropy(logits, targets, ignore_index=self.ignore_index)
+
+        return torch.nn.functional.cross_entropy(
+            logits, targets, ignore_index=self.ignore_index
+        )

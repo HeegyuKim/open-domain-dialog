@@ -3,8 +3,7 @@ from typing import List, Dict
 import torch
 
 
-
-class ListCollator():
+class ListCollator:
     def __call__(self, x: List[Dict]) -> Dict:
         out = defaultdict(list)
         for item in x:
