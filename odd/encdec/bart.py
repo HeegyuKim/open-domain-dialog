@@ -70,14 +70,14 @@ class BartTask(BaseTask):
             max_length=self.config.model.encoder_max_length,
             truncation_side="left",
             device=self.device,
-            add_special_tokens=False
+            add_special_tokens=False,
         )["input_ids"]
         generations = self.model.generate(
-            input_ids, 
-            bos_token_id=self.tokenizer.bos_token_id, 
-            **kwargs
+            input_ids, bos_token_id=self.tokenizer.bos_token_id, **kwargs
         )
-        generations = self.tokenizer.batch_decode(generations, skip_special_tokens=False)
+        generations = self.tokenizer.batch_decode(
+            generations, skip_special_tokens=False
+        )
         return generations
 
     def training_step(self, batch, batch_idx):
