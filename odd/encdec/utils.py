@@ -24,7 +24,7 @@ def prepare_batch(
     decoder_inputs = dataset_utils.tokenize_truncate_pad(
         tokenizer,
         responses,
-        decoder_max_length - 2,
+        decoder_max_length,
         device=device,
         truncation_side="right",
         add_special_tokens=True,
@@ -36,6 +36,7 @@ def prepare_batch(
     inputs["decoder_attention_mask"] = decoder_inputs["attention_mask"][:, :-1]
 
     dec_labels = decoder_inputs["input_ids"][:, 1:]
+    # dec_labels = decoder_inputs["input_ids"]
     inputs["labels"] = dec_labels.masked_fill(
         dec_labels == tokenizer.pad_token_id, label_for_pad_token_id
     )

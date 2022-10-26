@@ -1,6 +1,6 @@
 
 project: open-domain-dialog
-run_name: t5-small-dialog-poc-focal
+run_name: kobartp-v2-dialog-poc
 
 logger: 
   name: wandb
@@ -40,7 +40,7 @@ trainer:
   check_val_every_n_epoch: 5
 
 model:
-  plm: paust/pko-t5-small
+  plm: gogamza/kobart-base-v2
   encoder_max_length: 128
   decoder_max_length: 32
 

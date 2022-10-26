@@ -6,7 +6,7 @@ from .utils import prepare_batch
 from .. import metric, loss
 
 from omegaconf import DictConfig
-from transformers import T5ForConditionalGeneration, T5TokenizerFast
+from transformers import BartForConditionalGeneration, BartTokenizerFast
 import wandb
 import torch
 import torch.nn.functional as F
@@ -23,16 +23,15 @@ def get_loss_fn(config):
         raise Exception(f"알 수 없는 loss function {loss_fn}")
 
 
-class T5Task(BaseTask):
+class BartTask(BaseTask):
     def __init__(self, config: DictConfig) -> None:
         super().__init__(config)
 
-        self.tokenizer = T5TokenizerFast.from_pretrained(config.model.plm)
-        self.model = T5ForConditionalGeneration.from_pretrained(config.model.plm)
+        self.tokenizer = BartTokenizerFast.from_pretrained(config.model.plm)
+        self.model = BartForConditionalGeneration.from_pretrained(config.model.plm)
 
         if self.tokenizer.bos_token_id is None:
             self.tokenizer.bos_token_id = self.tokenizer.eos_token_id
-        self.model.config.decoder_start_token_id = self.tokenizer.eos_token_id
 
         self.loss_fn = get_loss_fn(config)
 
@@ -56,12 +55,8 @@ class T5Task(BaseTask):
         )
 
         labels = batch.pop("labels")
-        out = self.model(**batch)
-        logits = out.logits
-        if self.config.model.get("loss_fn") == "simctg":
-            loss = self.loss_fn(out.last_hidden_state, logits, batch["input_ids"], labels)
-        else:
-            loss = self.loss_fn(logits, labels)
+        logits = self.model(**batch).logits
+        loss = self.loss_fn(logits, labels)
 
         # cpulabels = labels.cpu()
         # print(self.tokenizer.batch_decode(cpulabels.masked_fill(cpulabels == -100, 0)))
@@ -78,10 +73,11 @@ class T5Task(BaseTask):
             add_special_tokens=False
         )["input_ids"]
         generations = self.model.generate(
-            input_ids,
+            input_ids, 
+            bos_token_id=self.tokenizer.bos_token_id, 
             **kwargs
         )
-        generations = self.tokenizer.batch_decode(generations, skip_special_tokens=True)
+        generations = self.tokenizer.batch_decode(generations, skip_special_tokens=False)
         return generations
 
     def training_step(self, batch, batch_idx):
