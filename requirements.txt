@@ -1,0 +1,12 @@
+torch
+transformers
+datasets
+sentencepiece
+tqdm
+pandas
+huggingface_hub
+omegaconf
+hydra-core
+pytorch-lightning
+silence_tensorflow 
+fire
