@@ -1,0 +1,49 @@
+
+project: open-domain-dialog
+run_name: t5-small-poc-simctg
+
+logger: 
+  name: wandb
+  val_sample_batches: 10
+  val_sample_generation_params:
+    num_beams: 4
+    repetition_penalty: 2.0
+    min_length: 5
+    max_length: 32
+
+dataset:
+  train:
+    shuffle: false
+    use_auth_token: true
+    paths:
+      - heegyu/aihub_daily_conv_2022_CRF
+  validation:
+    use_auth_token: true
+    split: train # overfitting test
+    paths:
+      - heegyu/aihub_daily_conv_2022_CRF
+
+optimizer:
+  cls: adamw
+  learning_rate: 1e-4
+  
+trainer:
+  train_epochs: 100
+  train_batch_size: 16
+  accumulate_grad_batches: 16
+  limit_train_batches: 100
+  limit_val_batches: 10
+
+  eval_batch_size: 4
+  num_sanity_val_steps: 1
+  # val_check_interval: 100
+  check_val_every_n_epoch: 5
+
+model:
+  plm: paust/pko-t5-small
+  encoder_max_length: 128
+  decoder_max_length: 32
+
+  loss_fn: simctg
+  vocab_size: 50358
+  pad_token_id: 0

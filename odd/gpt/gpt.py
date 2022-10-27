@@ -51,17 +51,17 @@ class GPTTask(BaseTask):
         )
 
         labels = batch.pop("labels")
-        batch["labels"] = batch["input_ids"]
         out = self.model(**batch)
-        # logits = out.logits
-        # if self.config.model.get("loss_fn") == "simctg":
-        #     loss = self.loss_fn(
-        #         out.last_hidden_state, logits, batch["input_ids"], labels
-        #     )
-        # else:
-        #     loss = self.loss_fn(logits, labels)
+        logits = out.logits
+        if self.config.model.get("loss_fn") == "simctg":
+            loss = self.loss_fn(
+                out.last_hidden_state, logits, batch["input_ids"], labels
+            )
+        else:
+            print(logits.shape, labels.shape)
+            loss = self.loss_fn(logits, labels)
 
-        return out.loss
+        return loss
 
     def generate(
         self,
@@ -116,7 +116,7 @@ class GPTTask(BaseTask):
         return uttrs
 
     def training_step(self, batch, batch_idx):
-        loss = self.step(self._join_uttrs(batch["utterances"], batch["speakers"]))
+        loss = self.step(batch["dialog"])
         self.log("train_loss", loss)
 
         return loss

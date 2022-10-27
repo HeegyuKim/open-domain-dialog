@@ -10,13 +10,15 @@ logger:
     repetition_penalty: 2.0
     no_repeat_ngram_size: 4
     max_new_tokens: 32
+    eos_token_id: 375 # \n
+    max_prompt_length: 224
 
 dataset:
   train:
     shuffle: false
     use_auth_token: true
     paths:
-      - heegyu/nikl_online_conv_2022
+      - heegyu/aihub_daily_conv_2022_gpt
   validation:
     use_auth_token: true
     split: train
@@ -42,7 +44,7 @@ trainer:
 
 model:
   plm: skt/kogpt2-base-v2
-  max_seq_len: 256
+  max_seq_len: 128
 
 tokenizer:
   add_special_tokens:

@@ -57,16 +57,19 @@ class CrossEntropyLoss(nn.Module):
     def __init__(self, ignore_index: Optional[int] = -100):
         super().__init__()
         self.ignore_index = ignore_index
+        self.loss_fct = torch.nn.CrossEntropyLoss(ignore_index=self.ignore_index)
 
     def forward(self, logits, targets):
         """
         logits: [bs, seq, vocab]
         targets: [bs, seq]
         """
-        if logits.dim() > 2:
-            logits = logits.view(-1, logits.shape[-1])
-            targets = targets.view(-1)
+        # Flatten the tokens
+        print("logits")
+        logits = logits.view(-1, logits.size(-1))
+        print("targets")
+        targets = targets.view(-1)
+        print("loss")
+        loss = self.loss_fct(logits, targets)
 
-        return torch.nn.functional.cross_entropy(
-            logits, targets, ignore_index=self.ignore_index
-        )
+        return loss

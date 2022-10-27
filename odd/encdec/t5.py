@@ -10,6 +10,7 @@ from transformers import T5ForConditionalGeneration, T5TokenizerFast
 import wandb
 import torch
 import torch.nn.functional as F
+from ..simctg.loss import SimCTGLoss
 
 
 def get_loss_fn(config):
@@ -19,6 +20,8 @@ def get_loss_fn(config):
         return loss.FocalLoss(**loss_params)
     elif loss_fn == "cross_entropy":
         return loss.CrossEntropyLoss()
+    elif loss_fn == "simctg":
+        return SimCTGLoss(0.5, config.model.vocab_size, config.model.pad_token_id)
     else:
         raise Exception(f"알 수 없는 loss function {loss_fn}")
 
@@ -56,12 +59,13 @@ class T5Task(BaseTask):
         )
 
         labels = batch.pop("labels")
-        out = self.model(**batch)
+        out = self.model(**batch, output_hidden_states=True)
         logits = out.logits
         if self.config.model.get("loss_fn") == "simctg":
-            loss = self.loss_fn(
-                out.last_hidden_state, logits, batch["input_ids"], labels
+            mle_loss, cl_loss = self.loss_fn(
+                out.decoder_hidden_states[-1], logits, batch["decoder_input_ids"], labels
             )
+            loss = mle_loss + cl_loss
         else:
             loss = self.loss_fn(logits, labels)
 
