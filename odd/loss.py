@@ -59,17 +59,17 @@ class CrossEntropyLoss:
         self.ignore_index = ignore_index
         self.loss_fct = torch.nn.CrossEntropyLoss(ignore_index=self.ignore_index)
 
-    def __call__(self, logits, targets):
+    def __call__(self, logits, labels, shift=False):
         """
         logits: [bs, seq, vocab]
         targets: [bs, seq]
         """
         # Flatten the tokens
-        print("logits")
+        if shift:
+            logits = logits[..., :-1, :].contiguous()
+            labels = labels[..., 1:].contiguous()
+
         logits = logits.view(-1, logits.size(-1))
-        print("targets")
-        targets = targets.view(-1)
-        print("loss")
-        loss = self.loss_fct(logits, targets)
-        print("loss after")
+        labels = labels.view(-1)
+        loss = self.loss_fct(logits, labels)
         return loss

@@ -67,6 +67,6 @@ def prepare_batch(
     if return_labels:
         out["labels"] = out["input_ids"].masked_fill(
             out["attention_mask"] == 0, label_for_pad_token_id
-        )  # torch.tensor(labels, dtype=torch.long, device=device)
+        )
 
     return out

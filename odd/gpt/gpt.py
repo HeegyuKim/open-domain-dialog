@@ -4,6 +4,7 @@ from ..base.collator import ListCollator
 from ..base import dataset_utils
 from .. import metric, loss
 from . import utils
+from ..simctg.loss import SimCTGLoss
 
 from omegaconf import DictConfig
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
@@ -19,6 +20,12 @@ def get_loss_fn(config):
         return loss.FocalLoss(**loss_params)
     elif loss_fn == "cross_entropy":
         return loss.CrossEntropyLoss()
+    elif loss_fn == "simctg":
+        return loss.SimCTGLoss(
+            1,
+            51200,
+            3
+        )
     else:
         raise Exception(f"알 수 없는 loss function {loss_fn}")
 
@@ -50,17 +57,18 @@ class GPTTask(BaseTask):
             add_eos_token=True,
         )
 
+        labels = batch.pop("labels")
         out = self.model(**batch)
-        logits = out.logits[..., :-1, :].contiguous()
-        labels = batch["input_ids"][..., 1:].contiguous()
+        # return out.loss
+        # logits = out.logits[..., :-1, :].contiguous()
+        # labels = labels[..., 1:].contiguous()
 
         if self.config.model.get("loss_fn") == "simctg":
             loss = self.loss_fn(
-                out.last_hidden_state, logits, batch["input_ids"], labels
+                out.last_hidden_state, out.logits, batch["input_ids"], labels
             )
         else:
-            print(logits.shape, labels.shape)
-            loss = self.loss_fn(logits, labels)
+            loss = self.loss_fn(out.logits, labels)
 
         return loss
 
