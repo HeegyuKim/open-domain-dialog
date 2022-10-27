@@ -57,7 +57,6 @@ class CrossEntropyLoss:
     def __init__(self, ignore_index: Optional[int] = -100):
         super().__init__()
         self.ignore_index = ignore_index
-        self.loss_fct = torch.nn.CrossEntropyLoss(ignore_index=self.ignore_index)
 
     def __call__(self, logits, targets):
         """
@@ -70,6 +69,7 @@ class CrossEntropyLoss:
         print("targets")
         targets = targets.view(-1)
         print("loss")
-        loss = self.loss_fct(logits, targets)
+        loss_fct = torch.nn.CrossEntropyLoss(ignore_index=self.ignore_index)
+        loss = loss_fct(logits, targets)
         print("loss after")
         return loss

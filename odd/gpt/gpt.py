@@ -3,6 +3,7 @@ from ..base.task import BaseTask
 from ..base.collator import ListCollator
 from ..base import dataset_utils
 from .. import metric, loss
+from ..loss import CrossEntropyLoss
 from . import utils
 
 from omegaconf import DictConfig
@@ -46,21 +47,24 @@ class GPTTask(BaseTask):
             self.tokenizer,
             texts,
             self.config.model.max_seq_len,
-            self.device,
-            add_eos_token=True,
+            self.device
         )
 
+        # labels = batch.pop("labels")
         out = self.model(**batch)
-        logits = out.logits[..., :-1, :].contiguous()
-        labels = batch["input_ids"][..., 1:].contiguous()
+        return out.loss
+        # logits = out.logits[..., :-1, :].contiguous()
+        # labels = labels[..., 1:].contiguous()
+        logits = out.logits
 
         if self.config.model.get("loss_fn") == "simctg":
             loss = self.loss_fn(
                 out.last_hidden_state, logits, batch["input_ids"], labels
             )
         else:
-            print(logits.shape, labels.shape)
-            loss = self.loss_fn(logits, labels)
+            # loss = self.loss_fn(logits, labels)
+            # loss = torch.nn.CrossEntropyLoss()(logits, labels)
+            loss = torch.nn.CrossEntropyLoss()(logits.view(-1, logits.size(-1)), labels.view(-1))
 
         return loss
 
@@ -157,6 +161,7 @@ class GPTTask(BaseTask):
 
     def validation_epoch_end(self, outputs) -> None:
         if wandb.run is None:
+            print(outputs)
             return
 
         table = wandb.Table(["context", "response", "prediction"])

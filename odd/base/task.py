@@ -16,10 +16,12 @@ from .dataset import HuggingfaceDataset
 
 
 def get_logger(config):
-    name = config.logger.name
+    name = config.logger.get("name")
 
     if name == "wandb":
         return WandbLogger(name=config.run_name, project=config.project,)
+    elif name is None:
+        return None
     else:
         raise Exception(f"{name} is invalid logger")
 
@@ -134,7 +136,7 @@ class BaseTask(pl.LightningModule):
 
     @classmethod
     def main(cls, config_name: str):
-        initialize("../../config/")
+        initialize("../../config/", "1.1")
         config = compose(config_name + ".yaml")
         ckpt = config.get("checkpoint", None)
 
