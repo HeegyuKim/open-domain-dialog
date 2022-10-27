@@ -63,7 +63,10 @@ class T5Task(BaseTask):
         logits = out.logits
         if self.config.model.get("loss_fn") == "simctg":
             mle_loss, cl_loss = self.loss_fn(
-                out.decoder_hidden_states[-1], logits, batch["decoder_input_ids"], labels
+                out.decoder_hidden_states[-1],
+                logits,
+                batch["decoder_input_ids"],
+                labels,
             )
             loss = mle_loss + cl_loss
         else:

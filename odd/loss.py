@@ -10,7 +10,7 @@ from torch.autograd import Variable
 from typing import Optional
 
 
-class FocalLoss(nn.Module):
+class FocalLoss:
     def __init__(
         self, gamma=0, alpha=None, size_average=True, ignore_index: Optional[int] = -100
     ):
@@ -24,7 +24,7 @@ class FocalLoss(nn.Module):
         self.size_average = size_average
         self.ignore_index = ignore_index
 
-    def forward(self, input, target):
+    def __call__(self, input, target):
         input = F.log_softmax(input, dim=-1)
         if input.dim() > 2:
             input = input.view(-1, input.shape[-1])
@@ -53,13 +53,13 @@ class FocalLoss(nn.Module):
             return loss.mean()
 
 
-class CrossEntropyLoss(nn.Module):
+class CrossEntropyLoss:
     def __init__(self, ignore_index: Optional[int] = -100):
         super().__init__()
         self.ignore_index = ignore_index
         self.loss_fct = torch.nn.CrossEntropyLoss(ignore_index=self.ignore_index)
 
-    def forward(self, logits, targets):
+    def __call__(self, logits, targets):
         """
         logits: [bs, seq, vocab]
         targets: [bs, seq]
@@ -71,5 +71,5 @@ class CrossEntropyLoss(nn.Module):
         targets = targets.view(-1)
         print("loss")
         loss = self.loss_fct(logits, targets)
-
+        print("loss after")
         return loss

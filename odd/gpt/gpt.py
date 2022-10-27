@@ -50,9 +50,10 @@ class GPTTask(BaseTask):
             add_eos_token=True,
         )
 
-        labels = batch.pop("labels")
         out = self.model(**batch)
-        logits = out.logits
+        logits = out.logits[..., :-1, :].contiguous()
+        labels = batch["input_ids"][..., 1:].contiguous()
+
         if self.config.model.get("loss_fn") == "simctg":
             loss = self.loss_fn(
                 out.last_hidden_state, logits, batch["input_ids"], labels

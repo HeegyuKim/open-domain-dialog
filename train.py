@@ -1,6 +1,8 @@
 import fire
 import os
+from silence_tensorflow import silence_tensorflow
 
+silence_tensorflow()
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
 

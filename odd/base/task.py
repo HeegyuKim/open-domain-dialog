@@ -19,10 +19,7 @@ def get_logger(config):
     name = config.logger.name
 
     if name == "wandb":
-        return WandbLogger(
-            name=config.run_name,
-            project=config.project,
-        )
+        return WandbLogger(name=config.run_name, project=config.project,)
     else:
         raise Exception(f"{name} is invalid logger")
 
@@ -147,8 +144,7 @@ class BaseTask(pl.LightningModule):
             task = cls.load_from_checkpoint(ckpt)
 
         checkpoint = pl.callbacks.ModelCheckpoint(
-            dirpath="./checkpoint/",
-            filename=f"{config.project}-{config.run_name}",
+            dirpath="./checkpoint/", filename=f"{config.project}-{config.run_name}",
         )
         trainer = pl.Trainer(
             logger=get_logger(config),

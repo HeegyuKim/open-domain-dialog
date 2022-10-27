@@ -18,8 +18,8 @@ def prepare_batch(
     ids = tokenizer(texts, padding=False, truncation=False, add_special_tokens=False)[
         "input_ids"
     ]
-    truncate_len = min(dataset_utils.get_longest_length(ids), max_length) + 1
-    pad_size = dataset_utils.pad_size_to_multiple_of(truncate_len - 1, 8) + 1
+    truncate_len = min(dataset_utils.get_longest_length(ids), max_length)
+    pad_size = dataset_utils.pad_size_to_multiple_of(truncate_len, 8)
 
     if add_bos_token:
         truncate_len -= 1
@@ -28,7 +28,7 @@ def prepare_batch(
 
     new_ids = []
     masks = []
-    labels = []
+    # labels = []
 
     for item in ids:
         # truncate 보다 긴 녀석은 eos 토큰 추가하지 않음!!
@@ -47,7 +47,6 @@ def prepare_batch(
         )
         item_len = len(item)
         mask = [1] * (item_len) + [0] * (pad_size - item_len)
-        label = item[1:] + [label_for_pad_token_id] * (pad_size - item_len)
 
         item = dataset_utils.pad(
             item,
@@ -56,9 +55,9 @@ def prepare_batch(
             padding_value=tokenizer.pad_token_id,
         )
 
-        new_ids.append(item[:-1])
-        labels.append(label)
-        masks.append(mask[:-1])
+        new_ids.append(item)
+        # labels.append(label)
+        masks.append(mask)
 
     out = {
         "input_ids": torch.tensor(new_ids, dtype=torch.long, device=device),
@@ -66,6 +65,8 @@ def prepare_batch(
     }
 
     if return_labels:
-        out["labels"] = torch.tensor(labels, dtype=torch.long, device=device)
+        out["labels"] = out["input_ids"].masked_fill(
+            out["attention_mask"] == 0, label_for_pad_token_id
+        )  # torch.tensor(labels, dtype=torch.long, device=device)
 
     return out
