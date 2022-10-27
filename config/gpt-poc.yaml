@@ -1,6 +1,6 @@
 
 project: open-domain-dialog
-run_name: t5-small-dialog-poc
+run_name: gpt2-dialog
 
 logger: 
   name: wandb
@@ -8,38 +8,44 @@ logger:
   val_sample_generation_params:
     num_beams: 4
     repetition_penalty: 2.0
-    min_length: 5
-    max_length: 32
+    no_repeat_ngram_size: 4
+    max_new_tokens: 32
 
 dataset:
   train:
     shuffle: false
     use_auth_token: true
     paths:
-      - heegyu/aihub_daily_conv_2022_CRF
+      - heegyu/nikl_online_conv_2022
   validation:
     use_auth_token: true
-    split: train # overfitting test
+    split: train
     paths:
       - heegyu/aihub_daily_conv_2022_CRF
 
 optimizer:
   cls: adamw
-  learning_rate: 1e-4
+  learning_rate: 5e-5
   
 trainer:
-  train_epochs: 100
-  train_batch_size: 16
-  accumulate_grad_batches: 16
-  limit_train_batches: 100
+  # accelerator: cpu
+  train_epochs: 3
+  train_batch_size: 8
+  # accumulate_grad_batches: 16
+  limit_train_batches: 500
   limit_val_batches: 10
 
   eval_batch_size: 4
   num_sanity_val_steps: 1
   # val_check_interval: 100
-  check_val_every_n_epoch: 5
+  check_val_every_n_epoch: 1
 
 model:
-  plm: paust/pko-t5-small
-  encoder_max_length: 128
-  decoder_max_length: 32
+  plm: skt/kogpt2-base-v2
+  max_seq_len: 256
+
+tokenizer:
+  add_special_tokens:
+    pad_token: <pad>
+    bos_token: <s>
+    eos_token: </s>

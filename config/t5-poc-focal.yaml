@@ -5,7 +5,7 @@ run_name: t5-small-dialog-poc-focal
 logger: 
   name: wandb
   val_sample_batches: 10
-  val_sample_generate_params:
+  val_sample_generation_params:
     num_beams: 4
     repetition_penalty: 2.0
     min_length: 5

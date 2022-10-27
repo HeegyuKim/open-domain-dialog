@@ -10,6 +10,11 @@ class TrainerMain:
 
         T5Task.main(config)
 
+    def gpt(self, config: str = "gpt"):
+        from odd.gpt.gpt import GPTTask
+
+        GPTTask.main(config)
+
 
 if __name__ == "__main__":
     fire.Fire(TrainerMain)
