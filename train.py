@@ -12,6 +12,11 @@ class TrainerMain:
 
         T5Task.main(config)
 
+    def t5_lm_adapted(self, config: str = "t5-lm-adapted"):
+        from odd.encdec.t5 import T5LMAdaptedTask
+
+        T5LMAdaptedTask.main(config)
+
     def gpt(self, config: str = "gpt"):
         from odd.gpt.gpt import GPTTask
 

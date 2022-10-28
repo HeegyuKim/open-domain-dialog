@@ -1,5 +1,5 @@
 from typing import Any, Callable, Mapping, Optional, Union
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 
 import torch
 import torch.optim as optim
@@ -24,6 +24,18 @@ def get_logger(config):
         return None
     else:
         raise Exception(f"{name} is invalid logger")
+
+
+def create_checkpoint_callback(config: DictConfig):
+    checkpoint_values = OmegaConf.create(dict(
+        dirpath="./checkpoint/",
+        filename=f"{config.project}-{config.run_name}" + "-{steps}"
+    ))
+
+    args = config.get("checkpoint", {})
+    checkpoint_values.merge_with(args)
+    checkpoint = pl.callbacks.ModelCheckpoint(**checkpoint_values)
+    return checkpoint
 
 
 class BaseTask(pl.LightningModule):
@@ -60,6 +72,7 @@ class BaseTask(pl.LightningModule):
             self.config.dataset.train.paths,
             self.config.dataset.train.get("weights"),
             self.config.dataset.train.get("split", "train"),
+            streaming=self.config.dataset.train.get("streaming", False),
             use_auth_token=self.config.dataset.train.get("use_auth_token", False),
         )
 
@@ -72,7 +85,8 @@ class BaseTask(pl.LightningModule):
                 self.config.dataset.validation.paths,
                 weights=self.config.dataset.validation.get("weights"),
                 split=self.config.dataset.validation.get("split", "test"),
-                use_auth_token=self.config.dataset.train.get("use_auth_token", False),
+                streaming=self.config.dataset.validation.get("streaming", False),
+                use_auth_token=self.config.dataset.validation.get("use_auth_token", False),
             )
         else:
             return None
@@ -138,16 +152,14 @@ class BaseTask(pl.LightningModule):
     def main(cls, config_name: str):
         initialize("../../config/")
         config = compose(config_name + ".yaml")
-        ckpt = config.get("checkpoint", None)
+        ckpt = config.trainer.get("resume_from_checkpoint", None)
 
         if ckpt is None:
             task = cls(config=config)
         else:
             task = cls.load_from_checkpoint(ckpt)
 
-        checkpoint = pl.callbacks.ModelCheckpoint(
-            dirpath="./checkpoint/", filename=f"{config.project}-{config.run_name}",
-        )
+        checkpoint = create_checkpoint_callback(config)
         trainer = pl.Trainer(
             logger=get_logger(config),
             accelerator=config.trainer.get(

@@ -13,11 +13,12 @@ from .dataset_utils import normalize_weights
 
 
 @dataclass
-class HuggingfaceDataset(Dataset):
+class HuggingfaceDataset(IterableDataset):
     dataset_paths: List[str]
     weights: Optional[List] = None
     split: str = "train"
     use_auth_token: bool = False
+    streaming: bool = False
     dataset = None
 
     def _get_dataset(self):
@@ -25,7 +26,7 @@ class HuggingfaceDataset(Dataset):
             ds = []
             for name in self.dataset_paths:
                 d = load_dataset(
-                    name, split=self.split, use_auth_token=self.use_auth_token
+                    name, split=self.split, streaming=self.streaming, use_auth_token=self.use_auth_token
                 )
                 ds.append(d)
 
@@ -35,7 +36,17 @@ class HuggingfaceDataset(Dataset):
         return self.dataset
 
     def __len__(self) -> int:
-        return len(self._get_dataset())
+        if self.streaming:
+            return None
+        else:
+            return len(self._get_dataset())
+
+    def __iter__(self) -> Any:
+        if not self.streaming:
+            return None
+            
+        for item in self._get_dataset():
+            yield item
 
     def __getitem__(self, index) -> dict:
         dataset = self._get_dataset()

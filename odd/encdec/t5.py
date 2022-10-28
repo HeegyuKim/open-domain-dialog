@@ -11,6 +11,9 @@ import wandb
 import torch
 import torch.nn.functional as F
 from ..simctg.loss import SimCTGLoss
+from .dataset import T5LMAdaptedIterableDataset
+import pandas as pd
+
 
 
 def get_loss_fn(config):
@@ -57,6 +60,8 @@ class T5Task(BaseTask):
             decoder_max_length=self.config.model.decoder_max_length,
             device=self.device,
         )
+
+        return self.model(**batch, output_hidden_states=False).loss
 
         labels = batch.pop("labels")
         out = self.model(**batch, output_hidden_states=True)
@@ -134,4 +139,38 @@ class T5Task(BaseTask):
             ):
                 table.add_data(c, r, p)
 
-        wandb.log({"val_sample": table})
+        wandb.log({"val_sample": table}, step=self.global_step)
+
+class T5LMAdaptedTask(T5Task):
+
+    def get_train_dataset(self) -> T5LMAdaptedIterableDataset:
+        dataset = super().get_train_dataset()
+        return T5LMAdaptedIterableDataset(dataset)
+
+    def get_eval_dataset(self):
+        return None
+
+    def training_step(self, batch, batch_idx):
+        output = super().training_step(batch, batch_idx)
+
+        train_sample_interval = self.config.logger.get("train_sample_interval", 10000)
+        if (batch_idx + 1) % train_sample_interval == 0:
+            params = self.config.logger.get("train_sample_generation_params", {})
+            samples = self.generate(batch["context"], **params)
+            
+            data = pd.DataFrame({
+                "context": batch["context"],
+                "response": batch["response"],
+                "generation": samples
+            })
+
+            if wandb.run is not None:
+                table = wandb.Table(
+                    columns=["context", "response", "generation"],
+                    data=data
+                )
+                wandb.log({"train_sample": table}, step=self.global_step)
+            else:
+                print(data)
+
+        return output
