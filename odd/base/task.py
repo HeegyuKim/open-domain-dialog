@@ -16,11 +16,11 @@ from .dataset import HuggingfaceDataset
 
 
 def get_logger(config):
-    name = config.logger.get("name")
+    name = config.get("logger", {}).get("name")
 
     if name == "wandb":
         return WandbLogger(name=config.run_name, project=config.project,)
-    elif name is None:
+    elif name == None:
         return None
     else:
         raise Exception(f"{name} is invalid logger")

@@ -32,7 +32,7 @@ optimizer:
 trainer:
   # accelerator: cpu
   train_epochs: 3
-  train_batch_size: 8
+  train_batch_size: 4
   # accumulate_grad_batches: 16
   limit_train_batches: 500
   limit_val_batches: 10
