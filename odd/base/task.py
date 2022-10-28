@@ -150,7 +150,7 @@ class BaseTask(pl.LightningModule):
 
     @classmethod
     def main(cls, config_name: str):
-        initialize("../../config/")
+        initialize("../../config/", "1.1")
         config = compose(config_name + ".yaml")
         ckpt = config.trainer.get("resume_from_checkpoint", None)
 

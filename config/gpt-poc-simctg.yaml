@@ -32,7 +32,7 @@ optimizer:
 trainer:
   # accelerator: cpu
   train_epochs: 3
-  train_batch_size: 4
+  train_batch_size: 8
   # accumulate_grad_batches: 16
   limit_train_batches: 500
   limit_val_batches: 10
@@ -45,6 +45,11 @@ trainer:
 model:
   plm: skt/kogpt2-base-v2
   max_seq_len: 64
+  loss_fn: simctg
+  loss_params:
+    margin: 0.5 
+    vocab_size: 51200
+    pad_token_id: 3
 
 tokenizer:
   add_special_tokens:
