@@ -44,7 +44,7 @@ trainer:
 
 model:
   plm: skt/kogpt2-base-v2
-  max_seq_len: 128
+  max_seq_len: 64
 
 tokenizer:
   add_special_tokens:

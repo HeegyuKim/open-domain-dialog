@@ -3,7 +3,7 @@ from ..base.task import BaseTask
 from ..base.collator import ListCollator
 from ..base import dataset_utils
 from .. import metric, loss
-from ..loss import CrossEntropyLoss
+from ..simctg.loss import SimCTGLoss
 from . import utils
 
 from omegaconf import DictConfig
@@ -18,6 +18,12 @@ def get_loss_fn(config):
     loss_params = config.model.get("loss_params", {})
     if loss_fn == "focal":
         return loss.FocalLoss(**loss_params)
+    elif loss_fn == "simctg":
+        return SimCTGLoss(
+            0.5, 
+            51200,
+            3
+        )
     elif loss_fn == "cross_entropy":
         return loss.CrossEntropyLoss()
     else:
@@ -50,21 +56,29 @@ class GPTTask(BaseTask):
             self.device
         )
 
-        # labels = batch.pop("labels")
-        out = self.model(**batch)
-        return out.loss
-        # logits = out.logits[..., :-1, :].contiguous()
-        # labels = labels[..., 1:].contiguous()
+        loss_name = self.config.model.get("loss_fn")
+        if loss_name is None:
+            out = self.model(**batch)
+            return out.loss
+
+        labels = batch.pop("labels")
         logits = out.logits
 
-        if self.config.model.get("loss_fn") == "simctg":
+        if loss_name == "simctg":
             loss = self.loss_fn(
                 out.last_hidden_state, logits, batch["input_ids"], labels
             )
         else:
+            loss = self.loss_fn(logits, labels)
+
+        # labels = batch.pop("labels")
+        # logits = out.logits[..., :-1, :].contiguous()
+        # labels = labels[..., 1:].contiguous()
+        
+        # else:
             # loss = self.loss_fn(logits, labels)
             # loss = torch.nn.CrossEntropyLoss()(logits, labels)
-            loss = torch.nn.CrossEntropyLoss()(logits.view(-1, logits.size(-1)), labels.view(-1))
+            # loss = torch.nn.CrossEntropyLoss()(logits.view(-1, logits.size(-1)), labels.view(-1))
 
         return loss
 
