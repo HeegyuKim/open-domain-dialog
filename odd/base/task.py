@@ -12,7 +12,7 @@ from pytorch_lightning.loggers import WandbLogger
 
 from hydra import initialize, compose
 
-from .dataset import HuggingfaceDataset
+from .dataset import HuggingfaceDataset, HuggingfaceIterableDataset
 
 
 def get_logger(config):
@@ -68,7 +68,7 @@ class BaseTask(pl.LightningModule):
             return opt
 
     def get_train_dataset(self) -> Dataset:
-        return HuggingfaceDataset(
+        return HuggingfaceIterableDataset(
             self.config.dataset.train.paths,
             self.config.dataset.train.get("weights"),
             self.config.dataset.train.get("split", "train"),
@@ -81,7 +81,7 @@ class BaseTask(pl.LightningModule):
 
     def get_eval_dataset(self) -> Dataset:
         if "validation" in self.config.dataset:
-            return HuggingfaceDataset(
+            return HuggingfaceIterableDataset(
                 self.config.dataset.validation.paths,
                 weights=self.config.dataset.validation.get("weights"),
                 split=self.config.dataset.validation.get("split", "test"),

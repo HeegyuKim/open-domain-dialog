@@ -56,16 +56,16 @@ class GPTTask(BaseTask):
         return ListCollator()
 
     def step(self, texts):
-        batch = utils.prepare_batch(
+        batch = utils.prepare_batch_v2(
             self.tokenizer,
             texts,
             self.config.model.max_seq_len,
             self.device
         )
 
-        labels = batch.pop("labels")
+        # labels = batch.pop("labels")
         out = self.model(**batch)
-        # return out.loss
+        return out.loss
         # logits = out.logits[..., :-1, :].contiguous()
         # labels = labels[..., 1:].contiguous()
 

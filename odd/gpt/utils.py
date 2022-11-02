@@ -3,6 +3,20 @@ from ..base import dataset_utils
 import torch
 
 
+def prepare_batch_v2(
+    tokenizer: Any,
+    texts: List[str],
+    max_length: int,
+    device: str,
+    label_for_pad_token_id: int = -100,
+):
+    inputs = tokenizer(texts, max_length=max_length, truncation=True, padding=True, return_tensors="pt")
+    inputs["labels"] = inputs["input_ids"].masked_fill(inputs["input_ids"] == tokenizer.pad_token_id, label_for_pad_token_id)
+    
+    dataset_utils.switch_dict_tensor_device(inputs, device)
+
+    return inputs
+
 def prepare_batch(
     tokenizer: Any,
     texts: List[str],
