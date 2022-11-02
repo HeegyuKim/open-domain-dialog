@@ -4,9 +4,12 @@ run_name: t5-small-lm-adapted
 
 logger: 
   name: wandb
-  train_sample_interval: 100
+  train_sample_interval: 1000
   train_sample_generation_params:
-    max_length: 128
+    max_length: 256
+    repetition_penalty: 2.0
+    num_beams: 4
+
 
 dataset:
   train:
@@ -14,23 +17,25 @@ dataset:
     streaming: true
     paths:
       - heegyu/kowikitext
+      - heegyu/namuwiki-extracted
 
 optimizer:
   cls: adamw
   learning_rate: 1e-4
 
 checkpoint:
-  every_n_train_steps: 100
+  every_n_train_steps: 10000
+  save_last: true
   
 trainer:
   train_steps: 100000
   train_batch_size: 8
-  accumulate_grad_batches: 1
+  accumulate_grad_batches: 16
   # limit_train_batches: 10000
   # val_check_interval: 100
-  check_val_every_n_epoch: 5
+  # check_val_every_n_epoch: 5
 
 model:
   plm: paust/pko-t5-small
-  encoder_max_length: 128
-  decoder_max_length: 128
+  encoder_max_length: 256
+  decoder_max_length: 256

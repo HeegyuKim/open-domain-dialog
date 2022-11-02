@@ -28,8 +28,8 @@ def get_logger(config):
 
 def create_checkpoint_callback(config: DictConfig):
     checkpoint_values = OmegaConf.create(dict(
-        dirpath="./checkpoint/",
-        filename=f"{config.project}-{config.run_name}" + "-{steps}"
+        dirpath="./checkpoint/{config.project}/{config.run_name}",
+        filename="{global_step}"
     ))
 
     args = config.get("checkpoint", {})
@@ -172,8 +172,8 @@ class BaseTask(pl.LightningModule):
             limit_train_batches=config.trainer.get("limit_train_batches"),
             limit_val_batches=config.trainer.get("limit_val_batches"),
             log_every_n_steps=config.trainer.get("log_every_n_steps", 1),
-            val_check_interval=config.trainer.get("val_check_interval", None),
-            check_val_every_n_epoch=config.trainer.get("check_val_every_n_epoch"),
+            val_check_interval=config.trainer.get("val_check_interval", 1.0),
+            check_val_every_n_epoch=config.trainer.get("check_val_every_n_epoch", 1),
             num_sanity_val_steps=config.trainer.get("num_sanity_val_steps", 0),
             strategy=config.trainer.get("strategy", None),
             gradient_clip_val=config.trainer.get("gradient_clip_val", 0),
