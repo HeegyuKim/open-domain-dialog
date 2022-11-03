@@ -10,3 +10,4 @@ hydra-core
 pytorch-lightning
 silence_tensorflow 
 fire
+streamlit_chat
