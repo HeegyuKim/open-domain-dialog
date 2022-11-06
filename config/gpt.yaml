@@ -1,6 +1,6 @@
 
 project: open-domain-dialog
-run_name: gpt2-dialog
+run_name: kodialogpt-base-v1
 
 logger: 
   name: wandb
@@ -18,9 +18,15 @@ logger:
 dataset:
   train:
     shuffle: false
+    streaming: true
     use_auth_token: true
     paths:
       - heegyu/aihub_daily_conv_2022_gpt
+      - heegyu/nikl_online_conv_2022_gpt
+      - heegyu/aihub_sns_dialog_gpt
+      - heegyu/aihub_twitter_dialog_gpt
+      - heegyu/aihub_emotional_dialog_gpt
+    weights: [87690, 74665, 1599992, 2000, 10000]
   validation:
     use_auth_token: true
     split: test
@@ -32,14 +38,14 @@ optimizer:
   learning_rate: 5e-5
   
 trainer:
-  train_epochs: 3
+  train_epochs: 1
   train_batch_size: 4
   limit_val_batches: 10
 
   eval_batch_size: 4
   num_sanity_val_steps: 1
-  # val_check_interval: 100
-  check_val_every_n_epoch: 1
+  val_check_interval: 10000
+  # check_val_every_n_epoch: 1
 
 model:
   plm: skt/kogpt2-base-v2

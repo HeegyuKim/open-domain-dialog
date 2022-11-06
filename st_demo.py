@@ -4,8 +4,8 @@ from streamlit_chat import message
 @st.cache(allow_output_mutation=True)
 def get_pipe():
     from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-    tokenizer = AutoTokenizer.from_pretrained("heegyu/kodialogpt")
-    model = AutoModelForCausalLM.from_pretrained("heegyu/kodialogpt")
+    tokenizer = AutoTokenizer.from_pretrained("heegyu/kodialogpt-v1")
+    model = AutoModelForCausalLM.from_pretrained("heegyu/kodialogpt-v1")
     return pipeline("text-generation", model=model, tokenizer=tokenizer)
 
 def get_response(generator, history, max_context: int = 7, bot_id: str = '1'):
@@ -36,7 +36,7 @@ def get_response(generator, history, max_context: int = 7, bot_id: str = '1'):
     response = response[len(context):].split("\n")[0]
     return response
 
-st.title("kodialogpt demo")
+st.title("kodialogpt-v1 demo")
 
 with st.spinner("loading model..."):
     generator = get_pipe()
