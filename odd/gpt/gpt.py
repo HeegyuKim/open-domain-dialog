@@ -93,6 +93,7 @@ class GPTTask(BaseTask):
         return_with_prompt: bool = False,
         min_new_tokens: int = 0,
         max_prompt_length: Optional[int] = None,
+        skip_special_tokens: bool = False,
         **kwargs,
     ):
         X = self.tokenizer(
@@ -125,7 +126,7 @@ class GPTTask(BaseTask):
         if not return_with_prompt:
             generations = [g[max_prompt_len:] for p, g in zip(prompt_lens, generations)]
 
-        generations = self.tokenizer.batch_decode(generations, skip_special_tokens=True)
+        generations = self.tokenizer.batch_decode(generations, skip_special_tokens=skip_special_tokens)
         return generations
 
     def _join_uttrs(self, uttrs, speaker_ids=None):

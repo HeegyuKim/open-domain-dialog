@@ -6,9 +6,10 @@ logger:
   name: wandb
   val_sample_batches: 10
   val_sample_generation_params:
-    max_new_tokens: 32
+    max_new_tokens: 48
+    min_new_tokens: 8
     eos_token_id: 375 # \n
-    max_prompt_length: 224
+    max_prompt_length: 464
     num_beams: 4
     no_repeat_ngram_size: 4
     repetition_penalty: 2.0
@@ -33,7 +34,8 @@ optimizer:
   learning_rate: 5e-5
   
 trainer:
-  train_epochs: 1
+  resume_from_checkpoint: checkpoint/open-domain-dialog/kodialogpt-base-v0-newline/last.ckpt
+  train_epochs: 3
   train_batch_size: 4
   limit_val_batches: 10
 

@@ -152,12 +152,7 @@ class BaseTask(pl.LightningModule):
         initialize("../../config/", "1.1")
         config = compose(config_name + ".yaml")
 
-        ckpt = config.trainer.get("resume_from_checkpoint", None)
-
-        if ckpt is None:
-            task = cls(config=config)
-        else:
-            task = cls.load_from_checkpoint(ckpt)
+        task = cls(config=config)
 
         checkpoint = create_checkpoint_callback(config)
         trainer = pl.Trainer(
@@ -177,6 +172,7 @@ class BaseTask(pl.LightningModule):
             num_sanity_val_steps=config.trainer.get("num_sanity_val_steps", 0),
             strategy=config.trainer.get("strategy", None),
             gradient_clip_val=config.trainer.get("gradient_clip_val", 0),
+            resume_from_checkpoint=config.trainer.get("resume_from_checkpoint"),
             callbacks=[checkpoint],
         )
-        trainer.fit(task, ckpt_path=config.trainer.get("resume_from_checkpoint"))
+        trainer.fit(task)
