@@ -55,7 +55,7 @@ class GPTTask(BaseTask):
     def get_eval_collator(self) -> Callable:
         return ListCollator()
 
-    def step(self, texts):
+    def _step(self, texts):
         batch = utils.prepare_batch_v2(
             self.tokenizer,
             texts,
@@ -140,7 +140,7 @@ class GPTTask(BaseTask):
         return uttrs
 
     def training_step(self, batch, batch_idx):
-        loss = self.step(batch["dialog"])
+        loss = self._step(batch["dialog"])
         self.log("train_loss", loss)
 
         return loss
@@ -153,7 +153,7 @@ class GPTTask(BaseTask):
                 for c, r in zip(batch["context"], batch["response"])
             ]
         )
-        loss = self.step(texts)
+        loss = self._step(texts)
         self.log("val_loss", loss, on_epoch=True, prog_bar=True, batch_size=batch_size)
 
         if batch_idx < self.config.logger.get("val_sample_batches", 1):

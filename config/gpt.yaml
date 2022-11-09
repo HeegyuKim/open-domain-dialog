@@ -56,3 +56,6 @@ tokenizer:
     pad_token: <pad>
     bos_token: <s>
     eos_token: </s>
+    sep_token: '
+    
+    '

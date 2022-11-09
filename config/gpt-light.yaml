@@ -1,6 +1,6 @@
-
+# gpt.yaml 에서 aihub daily conv만 사용
 project: open-domain-dialog
-run_name: kodialogpt-base-v1-poc
+run_name: kodialogpt-base-v0-newline
 
 logger: 
   name: wandb
@@ -18,12 +18,13 @@ logger:
 dataset:
   train:
     shuffle: false
+    streaming: false
     use_auth_token: true
     paths:
       - heegyu/aihub_daily_conv_2022_gpt
   validation:
     use_auth_token: true
-    split: train
+    split: test
     paths:
       - heegyu/aihub_daily_conv_2022_CRF
 
@@ -32,21 +33,18 @@ optimizer:
   learning_rate: 5e-5
   
 trainer:
-  # accelerator: cpu
-  train_epochs: 3
+  train_epochs: 1
   train_batch_size: 4
-  # accumulate_grad_batches: 16
-  limit_train_batches: 500
-  limit_val_batches: 100
+  limit_val_batches: 10
 
   eval_batch_size: 4
   num_sanity_val_steps: 1
-  # val_check_interval: 100
-  check_val_every_n_epoch: 1
+  val_check_interval: 10000
+  # check_val_every_n_epoch: 1
 
 model:
   plm: skt/kogpt2-base-v2
-  max_seq_len: 64
+  max_seq_len: 512
 
 tokenizer:
   add_special_tokens:

@@ -28,8 +28,7 @@ def get_logger(config):
 
 def create_checkpoint_callback(config: DictConfig):
     checkpoint_values = OmegaConf.create(dict(
-        dirpath="./checkpoint/{config.project}/{config.run_name}",
-        filename="{global_step}"
+        dirpath=f"./checkpoint/{config.project}/{config.run_name}",
     ))
 
     args = config.get("checkpoint", {})
@@ -152,6 +151,7 @@ class BaseTask(pl.LightningModule):
     def main(cls, config_name: str):
         initialize("../../config/", "1.1")
         config = compose(config_name + ".yaml")
+
         ckpt = config.trainer.get("resume_from_checkpoint", None)
 
         if ckpt is None:
