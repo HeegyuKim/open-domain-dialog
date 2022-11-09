@@ -47,6 +47,10 @@ trainer:
   val_check_interval: 10000
   # check_val_every_n_epoch: 1
 
+checkpoint:
+  every_n_train_steps: 10000
+  save_last: true
+  
 model:
   plm: skt/kogpt2-base-v2
   max_seq_len: 512
