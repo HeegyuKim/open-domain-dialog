@@ -38,7 +38,7 @@ optimizer:
   learning_rate: 5e-5
   
 trainer:
-  train_epochs: 1
+  train_epochs: 3
   train_batch_size: 4
   limit_val_batches: 10
 
@@ -46,6 +46,7 @@ trainer:
   num_sanity_val_steps: 1
   val_check_interval: 10000
   # check_val_every_n_epoch: 1
+  resume_from_checkpoint: checkpoint/open-domain-dialog/kodialogpt-base-v1/epoch1.ckpt
 
 checkpoint:
   every_n_train_steps: 10000
